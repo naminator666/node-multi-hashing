@@ -27,6 +27,8 @@ extern "C" {
     #include "zr5.h"
     #include "poly.h"
     #include "x13sm3.h"
+    #include "lyra2.h"
+    #include "lyra2z.h"
 }
 
 #include "boolberry.h"
@@ -645,6 +647,28 @@ Handle<Value> x13sm3(const Arguments& args) {
     return scope.Close(buff->handle_);
 }
 
+Handle<Value> lyra2z(const Arguments& args) {
+    HandleScope scope;
+
+    if (args.Length() < 1)
+        return except("You must provide one argument.");
+
+    Local<Object> target = args[0]->ToObject();
+
+    if(!Buffer::HasInstance(target))
+        return except("Argument should be a buffer object.");
+
+    char * input = Buffer::Data(target);
+    char output[32];
+
+    uint32_t input_len = Buffer::Length(target);
+
+    lyra2z_hash(input, output, input_len);
+
+    Buffer* buff = Buffer::New(output, 32);
+    return scope.Close(buff->handle_);
+}
+
 void init(Handle<Object> exports) {
     exports->Set(String::NewSymbol("quark"), FunctionTemplate::New(quark)->GetFunction());
     exports->Set(String::NewSymbol("x11"), FunctionTemplate::New(x11)->GetFunction());
@@ -673,6 +697,7 @@ void init(Handle<Object> exports) {
     exports->Set(String::NewSymbol("poly"), FunctionTemplate::New(poly)->GetFunction());
     exports->Set(String::NewSymbol("x13sm3"), FunctionTemplate::New(x13sm3)->GetFunction());
     exports->Set(String::NewSymbol("hsr"), FunctionTemplate::New(x13sm3)->GetFunction());
+    exports->Set(String::NewSymbol("lyra2z"), FunctionTemplate::New(lyra2z)->GetFunction());
 }
 
 NODE_MODULE(multihashing, init)
