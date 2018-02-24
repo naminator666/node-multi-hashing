@@ -28,8 +28,8 @@
 		"poly.c",
 		"x13sm3.c",
 		"sponge.c",
-		"lyra2.c"
-		"lyra2z.c",,
+		"lyra2.c",
+		"lyra2z.c",
                 "sha3/sph_hefty1.c",
                 "sha3/sph_fugue.c",
                 "sha3/aes_helper.c",
