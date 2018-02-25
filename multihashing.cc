@@ -663,7 +663,7 @@ Handle<Value> lyra2z(const Arguments& args) {
 
     uint32_t input_len = Buffer::Length(target);
 
-    lyra2z_hash(input, output, input_len);
+    lyra2z_hash(input, output);
 
     Buffer* buff = Buffer::New(output, 32);
     return scope.Close(buff->handle_);
