@@ -29,6 +29,7 @@ extern "C" {
     #include "x13sm3.h"
     #include "lyra2.h"
     #include "lyra2z.h"
+    #include "neoscrypt.h"
 }
 
 #include "boolberry.h"
@@ -669,6 +670,28 @@ Handle<Value> lyra2z(const Arguments& args) {
     return scope.Close(buff->handle_);
 }
 
+Handle<Value> neoscrypt_hash(const Arguments& args) {
+    HandleScope scope;
+
+    if (args.Length() < 2)
+        return except("You must provide two arguments.");
+
+    Local<Object> target = args[0]->ToObject();
+
+    if(!Buffer::HasInstance(target))
+        return except("Argument should be a buffer object.");
+
+    char * input = Buffer::Data(target);
+    char output[32];
+
+    uint32_t input_len = Buffer::Length(target);
+
+    neoscrypt(input, output, 0);
+
+    Buffer* buff = Buffer::New(output, 32);
+    return scope.Close(buff->handle_);
+}
+
 void init(Handle<Object> exports) {
     exports->Set(String::NewSymbol("quark"), FunctionTemplate::New(quark)->GetFunction());
     exports->Set(String::NewSymbol("x11"), FunctionTemplate::New(x11)->GetFunction());
@@ -698,7 +721,7 @@ void init(Handle<Object> exports) {
     exports->Set(String::NewSymbol("x13sm3"), FunctionTemplate::New(x13sm3)->GetFunction());
     exports->Set(String::NewSymbol("hsr"), FunctionTemplate::New(x13sm3)->GetFunction());
     exports->Set(String::NewSymbol("lyra2z"), FunctionTemplate::New(lyra2z)->GetFunction());
+    exports->Set(String::NewSymbol("neoscrypt"), FunctionTemplate::New(neoscrypt_hash)->GetFunction());
 }
 
 NODE_MODULE(multihashing, init)
-
