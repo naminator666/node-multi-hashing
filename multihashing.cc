@@ -30,6 +30,7 @@ extern "C" {
     #include "lyra2.h"
     #include "lyra2z.h"
     #include "neoscrypt.h"
+    #include "x16r.h"
 }
 
 #include "boolberry.h"
@@ -626,6 +627,27 @@ Handle<Value> poly(const Arguments& args) {
     return scope.Close(buff->handle_);
 }
 
+
+Handle<Value> x16r(const Arguments& args)  {
+
+    if (info.Length() < 1)
+        return THROW_ERROR_EXCEPTION("You must provide one argument.");
+
+    Local<Object> target = Nan::To<Object>(info[0]).ToLocalChecked();
+
+    if(!Buffer::HasInstance(target))
+        return THROW_ERROR_EXCEPTION("Argument should be a buffer object.");
+
+    char * input = Buffer::Data(target);
+    char *output = (char*) malloc(sizeof(char) * 32);
+
+    uint32_t input_len = Buffer::Length(target);
+
+    x16r_hash(input, output, input_len);
+
+    info.GetReturnValue().Set(Nan::NewBuffer(output, 32).ToLocalChecked());
+}
+
 Handle<Value> x13sm3(const Arguments& args) {
     HandleScope scope;
 
@@ -722,6 +744,7 @@ void init(Handle<Object> exports) {
     exports->Set(String::NewSymbol("hsr"), FunctionTemplate::New(x13sm3)->GetFunction());
     exports->Set(String::NewSymbol("lyra2z"), FunctionTemplate::New(lyra2z)->GetFunction());
     exports->Set(String::NewSymbol("neoscrypt"), FunctionTemplate::New(neoscrypt_hash)->GetFunction());
+    exports->Set(String::NewSymbol("x16r"), FunctionTemplate::New(x16r)->GetFunction());
 }
 
 NODE_MODULE(multihashing, init)
